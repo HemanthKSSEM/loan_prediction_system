@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% block title %}New Application - LoanPredict AI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10 animate-pro">
+        <div class="pro-card p-5 border-0 shadow-lg">
+            <!-- Stepper Component -->
+            <div class="stepper-wrapper mb-5 d-flex justify-content-between align-items-center px-lg-5">
+                <div class="step-item active">
+                    <div class="step-icon">1</div>
+                    <div class="step-label">Profile</div>
+                </div>
+                <div class="step-line flex-grow-1 mx-3"></div>
+                <div class="step-item">
+                    <div class="step-icon">2</div>
+                    <div class="step-label">Financials</div>
+                </div>
+                <div class="step-line flex-grow-1 mx-3"></div>
+                <div class="step-item">
+                    <div class="step-icon">3</div>
+                    <div class="step-label">Verification</div>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center mb-5">
+                <div class="bg-primary-light text-primary me-4" style="width: 64px; height: 64px; font-size: 1.8rem; display: flex; align-items: center; justify-content: center; border-radius: 16px;">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+                <div>
+                    <h3 class="fw-bold mb-1 text-slate-800">Financial Authorization</h3>
+                    <p class="text-muted small mb-0">Initiating multi-vector risk assessment for institutional capital.</p>
+                </div>
+            </div>
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <h5 class="fw-bold text-primary mb-4 border-bottom pb-2">Personal & Contact Details</h5>
+                <div class="row g-4 mb-5">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Full Name</label>
+                        {{ form.applicant_name }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Email Address</label>
+                        {{ form.email }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Phone Number</label>
+                        {{ form.phone }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Age</label>
+                        {{ form.age }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Gender</label>
+                        {{ form.gender }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Marital Status</label>
+                        {{ form.marital_status }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Dependents</label>
+                        {{ form.dependents }}
+                    </div>
+                </div>
+
+                <h5 class="fw-bold text-primary mb-4 border-bottom pb-2">Professional & Financial Profile</h5>
+                <div class="row g-4 mb-5">
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Education</label>
+                        {{ form.education }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Self Employed?</label>
+                        {{ form.self_employed }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Employment Type</label>
+                        {{ form.employment_type }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-muted small text-uppercase">CIBIL Score</label>
+                        {{ form.cibil_score }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Annual Income (Rs.)</label>
+                        {{ form.income_annum }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Property Area</label>
+                        {{ form.property_area }}
+                    </div>
+                </div>
+
+                <h5 class="fw-bold text-primary mb-4 border-bottom pb-2">Loan & Asset Information</h5>
+                <div class="row g-4 mb-5">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Desired Loan Amount (Rs.)</label>
+                        {{ form.loan_amount }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Loan Term (Months)</label>
+                        {{ form.loan_term }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Residential Assets</label>
+                        {{ form.residential_assets_value }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Commercial Assets</label>
+                        {{ form.commercial_assets_value }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Luxury Assets</label>
+                        {{ form.luxury_assets_value }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Bank Assets</label>
+                        {{ form.bank_asset_value }}
+                    </div>
+                </div>
+
+                <h5 class="fw-bold text-primary mb-4 border-bottom pb-2">Document Verification</h5>
+                <div class="row g-4 mb-5">
+                    <div class="col-md-12">
+                        <div class="p-4 border border-dashed rounded-4 bg-light text-center">
+                            <label class="form-label fw-bold d-block mb-3">Upload Supporting Documents (PDF/JPG)</label>
+                            <div class="row justify-content-center">
+                                <div class="col-md-6">
+                                    {{ doc_form.document_type }}
+                                    <div class="mt-3">
+                                        {{ doc_form.file_path }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-end border-top pt-5 mt-5">
+                    <button type="submit" class="btn btn-primary btn-lg px-5 py-3 rounded-pill shadow-lg fw-bold">
+                        <i class="fas fa-shield-check me-2"></i> Authorize & Submit Application
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

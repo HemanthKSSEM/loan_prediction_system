@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% block title %}Join - LoanPredict AI{% endblock %}
+
+{% block content %}
+<style>
+    /* Override base wrapper for full-screen auth */
+    .main-wrapper { margin-left: 0 !important; width: 100% !important; }
+    .sidebar { display: none !important; }
+    .top-header { display: none !important; }
+    .page-content { padding: 0 !important; max-width: 100% !important; }
+    
+    .auth-container {
+        min-height: 100vh;
+        display: flex;
+    }
+    
+    .auth-visual {
+        flex: 1;
+        background: url('{{ MEDIA_URL }}fintech_login_visual_1778345891692.png');
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 60px;
+    }
+    
+    .auth-visual::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(37, 99, 235, 0.4) 100%);
+    }
+    
+    .visual-content {
+        position: relative;
+        z-index: 10;
+        max-width: 500px;
+        color: #fff;
+    }
+    
+    .auth-form-side {
+        width: 600px;
+        background: #fff;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 60px 80px;
+        position: relative;
+    }
+    
+    .auth-logo {
+        position: absolute;
+        top: 40px;
+        left: 80px;
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: -0.05em;
+    }
+    
+    .auth-logo i { color: var(--primary); margin-right: 10px; }
+    
+    .form-control-pro {
+        border: 1.5px solid #e2e8f0;
+        padding: 10px 14px;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.2s;
+        font-size: 0.9rem;
+    }
+    
+    .form-control-pro:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px var(--primary-light);
+        outline: none;
+    }
+    
+    @media (max-width: 991px) {
+        .auth-visual { display: none; }
+        .auth-form-side { width: 100%; padding: 40px; }
+        .auth-logo { left: 40px; }
+    }
+</style>
+
+<div class="auth-container">
+    <div class="auth-visual">
+        <div class="visual-content animate-up">
+            <h1 class="display-5 fw-bold mb-4">Empowering <br> Financial <br> <span class="text-info">Excellence.</span></h1>
+            <p class="opacity-75 mb-5">Join thousands of financial professionals using LoanPredict AI to make smarter, faster, and more inclusive lending decisions.</p>
+            
+            <div class="mt-5 p-4 glass-card">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="avatar-sm bg-info bg-opacity-20 text-info rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <span class="fw-semibold">Secure Multi-Model Inference</span>
+                </div>
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="avatar-sm bg-info bg-opacity-20 text-info rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <span class="fw-semibold">Real-time Risk Analytics</span>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="avatar-sm bg-info bg-opacity-20 text-info rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <span class="fw-semibold">Automated Compliance Feed</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="auth-form-side">
+        <div class="auth-logo">
+            <i class="fas fa-shield-halved text-primary"></i>LendSmart<span class="text-primary">AI</span>
+        </div>
+        
+        <div class="animate-up" style="animation-delay: 0.1s;">
+            <h2 class="fw-bold mb-1">Create Account</h2>
+            <p class="text-muted mb-4">Set up your professional profile to get started.</p>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3">
+                    {% for field in form %}
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-danger x-small mt-1">{{ field.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="mt-4 mb-4">
+                    <div class="form-check small text-muted">
+                        <input class="form-check-input" type="checkbox" required id="terms">
+                        <label class="form-check-label" for="terms">
+                            I agree to the <a href="#" class="text-primary text-decoration-none">Terms of Service</a> and <a href="#" class="text-primary text-decoration-none">Privacy Policy</a>.
+                        </label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow-lg mb-4">
+                    Create Account <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+                
+                <div class="text-center">
+                    <p class="text-muted small">Already have an account? <a href="{% url 'login' %}" class="text-primary fw-bold text-decoration-none">Sign In</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Apply pro classes to django form fields
+    document.querySelectorAll('input, select').forEach(el => {
+        el.classList.add('form-control-pro');
+    });
+</script>
+{% endblock %}

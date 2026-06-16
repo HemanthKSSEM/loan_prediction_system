@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — LendSmart AI{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header animate-up">
+    <div>
+        <h1 class="page-title">My Dashboard</h1>
+        <p class="page-subtitle">Welcome back, {{ user.first_name|default:user.username }}. Here's your loan portfolio.</p>
+    </div>
+    <a href="{% url 'apply_loan' %}" class="btn-primary d-flex align-items-center gap-2" style="text-decoration:none;">
+        <i class="fas fa-plus" style="font-size:0.8rem;"></i>
+        New Application
+    </a>
+</div>
+
+<!-- KPI Grid -->
+<div class="row g-3 mb-4 animate-up">
+    <div class="col-lg-4 col-sm-6">
+        <div class="kpi-card kpi-blue">
+            <div class="kpi-icon kpi-icon-blue"><i class="fas fa-file-alt"></i></div>
+            <div class="kpi-label">Applications Submitted</div>
+            <div class="kpi-value">{{ total_applications|default:0 }}</div>
+            <div class="kpi-trend" style="color:#64748b;">All time submissions</div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-sm-6">
+        <div class="kpi-card kpi-green">
+            <div class="kpi-icon kpi-icon-green"><i class="fas fa-check-circle"></i></div>
+            <div class="kpi-label">Loans Approved</div>
+            <div class="kpi-value">{{ approved_loans|default:0 }}</div>
+            <div class="kpi-trend">
+                {% if total_applications > 0 %}
+                    <span class="trend-up"><i class="fas fa-check me-1"></i>{{ approved_loans }} approved</span> of {{ total_applications }} total
+                {% else %}
+                    <span style="color:#64748b;">No submissions yet</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-sm-12">
+        <div class="kpi-card kpi-slate" style="cursor:pointer;" onclick="window.location='{% url 'emi_calculator' %}'">
+            <div class="kpi-icon kpi-icon-slate"><i class="fas fa-calculator"></i></div>
+            <div class="kpi-label">EMI Calculator</div>
+            <div class="kpi-value" style="font-size:1.4rem; margin-bottom:12px;">Plan your loan</div>
+            <a href="{% url 'emi_calculator' %}" class="btn-primary" style="text-decoration:none; font-size:0.82rem; padding:8px 16px;">
+                Calculate EMI <i class="fas fa-arrow-right ms-1" style="font-size:0.75rem;"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Applications Table -->
+<div class="section-card animate-up">
+    <div class="section-header">
+        <div>
+            <div class="section-title">My Applications</div>
+            <div class="section-subtitle">All submitted loan requests and their current status</div>
+        </div>
+        <a href="{% url 'application_history' %}" class="btn-secondary" style="text-decoration:none; font-size:0.8rem; padding:7px 14px;">
+            View History
+        </a>
+    </div>
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Reference</th>
+                    <th>Loan Amount</th>
+                    <th>AI Prediction</th>
+                    <th>Status</th>
+                    <th>Submitted</th>
+                    <th style="text-align:right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in recent_applications %}
+                <tr>
+                    <td>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <div style="width:34px; height:34px; border-radius:10px; background:#f1f5f9; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                <i class="fas fa-file-invoice" style="font-size:0.85rem; color:#64748b;"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight:600; font-size:0.875rem; color:#0f172a; font-variant-numeric:tabular-nums;">
+                                    LP-{{ app.created_at|date:"Ym" }}-{{ app.id }}
+                                </div>
+                                <div style="font-size:0.72rem; color:#94a3b8; margin-top:1px;">{{ app.created_at|date:"d M Y" }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span style="font-weight:700; color:#0f172a; font-size:0.9rem; font-variant-numeric:tabular-nums;">
+                            Rs. {{ app.loan_amount|floatformat:0 }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if app.ml_prediction == 'Approved' %}
+                            <span class="badge-status badge-success"><span class="status-dot dot-success"></span>Likely Approved</span>
+                        {% elif app.ml_prediction == 'Rejected' %}
+                            <span class="badge-status badge-danger"><span class="status-dot dot-danger"></span>Likely Rejected</span>
+                        {% else %}
+                            <span class="badge-status badge-neutral"><span class="status-dot dot-neutral"></span>Analyzing</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if app.status == 'approved' %}
+                            <span class="badge-status badge-success"><span class="status-dot dot-success"></span>Approved</span>
+                        {% elif app.status == 'rejected' %}
+                            <span class="badge-status badge-danger"><span class="status-dot dot-danger"></span>Rejected</span>
+                        {% else %}
+                            <span class="badge-status badge-warning"><span class="status-dot dot-warning"></span>Pending</span>
+                        {% endif %}
+                    </td>
+                    <td style="color:#64748b; font-size:0.82rem;">{{ app.created_at|date:"d M, H:i" }}</td>
+                    <td style="text-align:right;">
+                        <div class="dropdown">
+                            <button class="btn-secondary" style="padding:6px 10px; font-size:0.78rem;" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{% url 'prediction_result' app.id %}"><i class="fas fa-chart-line me-2" style="color:#2563eb;"></i>View Analysis</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-download me-2" style="color:#64748b;"></i>Export</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align:center; padding:56px 24px;">
+                        <i class="fas fa-folder-open" style="font-size:2rem; color:#e2e8f0;"></i>
+                        <div style="color:#94a3b8; font-size:0.875rem; margin-top:12px;">No applications yet.</div>
+                        <a href="{% url 'apply_loan' %}" class="btn-primary" style="display:inline-flex; text-decoration:none; margin-top:16px; font-size:0.85rem;">
+                            <i class="fas fa-plus me-2" style="font-size:0.75rem;"></i>Submit Your First Application
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

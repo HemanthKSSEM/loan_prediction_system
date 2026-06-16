@@ -1,0 +1,390 @@
+{% extends 'base.html' %}
+{% block title %}LendSmart AI — Intelligent Loan Approval Platform{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ── Force dark theme on home page ── */
+    html, body {
+        background: #0a0f1e !important;
+        background-image: none !important;
+    }
+
+    body::before, body::after { display: none !important; }
+
+    .main-wrapper {
+        background: linear-gradient(170deg, #0a0f1e 0%, #0f1729 40%, #131c33 70%, #0f1729 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Ambient glows */
+    .main-wrapper::before {
+        content: '';
+        position: absolute;
+        top: -200px; left: -100px;
+        width: 700px; height: 700px;
+        background: radial-gradient(circle, rgba(37,99,235,0.15) 0%, transparent 65%);
+        pointer-events: none;
+    }
+
+    .main-wrapper::after {
+        content: '';
+        position: absolute;
+        bottom: -200px; right: -100px;
+        width: 600px; height: 600px;
+        background: radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 65%);
+        pointer-events: none;
+    }
+
+    .page-content {
+        position: relative;
+        z-index: 1;
+        max-width: 1140px;
+        padding: 0 40px;
+    }
+
+    /* ═══════ HERO ═══════ */
+    .hero {
+        padding: 110px 0 80px;
+        display: flex;
+        align-items: center;
+        gap: 64px;
+    }
+
+    .hero-left  { flex: 1; }
+    .hero-right { flex: 0 0 360px; }
+
+    @media (max-width: 991px) { .hero-right { display: none; } }
+
+    /* Badge */
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(37,99,235,0.1);
+        border: 1px solid rgba(37,99,235,0.18);
+        padding: 7px 18px;
+        border-radius: 100px;
+        color: #60a5fa;
+        font-weight: 600;
+        font-size: 0.82rem;
+        margin-bottom: 32px;
+    }
+
+    .pulse-dot {
+        width: 7px; height: 7px;
+        border-radius: 50%;
+        background: #22c55e;
+        box-shadow: 0 0 10px rgba(34,197,94,0.7);
+        animation: glow 2s infinite;
+    }
+
+    @keyframes glow {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50%      { transform: scale(1.4); opacity: 0.5; }
+    }
+
+    /* Title */
+    .hero-title {
+        font-size: clamp(2.6rem, 5vw, 3.8rem);
+        font-weight: 800;
+        line-height: 1.08;
+        letter-spacing: -0.045em;
+        color: #ffffff;
+        margin-bottom: 24px;
+    }
+
+    .hero-title .accent {
+        background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Description */
+    .hero-desc {
+        font-size: 1.05rem;
+        line-height: 1.75;
+        color: #94a3b8;
+        max-width: 480px;
+        margin-bottom: 40px;
+    }
+
+    /* Buttons */
+    .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    .btn-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 30px;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: all 0.25s ease;
+        cursor: pointer;
+    }
+
+    .btn-cta-blue {
+        background: linear-gradient(135deg, #2563eb, #3b82f6);
+        color: #fff;
+        box-shadow: 0 8px 28px rgba(37,99,235,0.4);
+        border: none;
+    }
+
+    .btn-cta-blue:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 36px rgba(37,99,235,0.5);
+        color: #fff;
+    }
+
+    .btn-cta-ghost {
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.12);
+        color: #cbd5e1;
+    }
+
+    .btn-cta-ghost:hover {
+        background: rgba(255,255,255,0.06);
+        border-color: rgba(255,255,255,0.2);
+        color: #fff;
+        transform: translateY(-2px);
+    }
+
+    /* ═══════ FLOATING CARD ═══════ */
+    .float-card {
+        background: rgba(255,255,255,0.04);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 22px;
+        padding: 28px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        animation: card-float 7s ease-in-out infinite;
+    }
+
+    @keyframes card-float {
+        0%, 100% { transform: translateY(0); }
+        50%      { transform: translateY(-12px); }
+    }
+
+    .card-label {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #475569;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    .stat-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 11px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .stat-row:last-child { border-bottom: none; }
+
+    .stat-dot   { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .stat-name  { flex: 1; font-size: 0.82rem; color: #94a3b8; }
+    .stat-value { font-size: 0.85rem; font-weight: 700; color: #e2e8f0; font-variant-numeric: tabular-nums; }
+
+    /* ═══════ FEATURES ═══════ */
+    .features {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        padding-bottom: 80px;
+    }
+
+    @media (max-width: 768px) { .features { grid-template-columns: 1fr; } }
+
+    .feat-card {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 20px;
+        padding: 32px 28px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .feat-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 2px;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .feat-card:hover {
+        background: rgba(255,255,255,0.06);
+        border-color: rgba(255,255,255,0.1);
+        transform: translateY(-6px);
+        box-shadow: 0 16px 40px rgba(0,0,0,0.2);
+    }
+
+    .feat-card:hover::before { opacity: 1; }
+
+    .feat-blue::before   { background: linear-gradient(90deg, #2563eb, #3b82f6); }
+    .feat-green::before  { background: linear-gradient(90deg, #16a34a, #22c55e); }
+    .feat-amber::before  { background: linear-gradient(90deg, #d97706, #f59e0b); }
+
+    .feat-icon {
+        width: 50px; height: 50px;
+        border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.15rem;
+        margin-bottom: 22px;
+    }
+
+    .feat-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #f1f5f9;
+        margin-bottom: 10px;
+        letter-spacing: -0.01em;
+    }
+
+    .feat-desc {
+        font-size: 0.85rem;
+        color: #64748b;
+        line-height: 1.65;
+    }
+
+    /* ═══════ FOOTER ═══════ */
+    .home-footer {
+        text-align: center;
+        padding: 40px 0 50px;
+        border-top: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .footer-label {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: #475569;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    .tech-list {
+        display: flex;
+        justify-content: center;
+        gap: 36px;
+        flex-wrap: wrap;
+    }
+
+    .tech-list span {
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: #334155;
+        letter-spacing: 0.06em;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-left">
+        <div class="hero-badge">
+            <span class="pulse-dot"></span>
+            AI-Powered Loan Platform
+        </div>
+
+        <h1 class="hero-title">
+            Smarter Loan<br>
+            <span class="accent">Approvals,</span><br>
+            Instantly.
+        </h1>
+
+        <p class="hero-desc">
+            LendSmart AI uses machine learning to evaluate loan applications in real-time — helping banks reduce risk and approve faster.
+        </p>
+
+        <div class="hero-btns">
+            {% if user.is_authenticated %}
+                {% if user.role == 'admin' or user.role == 'officer' %}
+                    <a href="{% url 'admin_dashboard' %}" class="btn-cta btn-cta-blue">
+                        Go to Dashboard <i class="fas fa-arrow-right" style="font-size:0.8rem;"></i>
+                    </a>
+                {% else %}
+                    <a href="{% url 'user_dashboard' %}" class="btn-cta btn-cta-blue">
+                        Go to Dashboard <i class="fas fa-arrow-right" style="font-size:0.8rem;"></i>
+                    </a>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'register' %}" class="btn-cta btn-cta-blue">
+                    Create Account <i class="fas fa-arrow-right" style="font-size:0.8rem;"></i>
+                </a>
+                <a href="{% url 'login' %}" class="btn-cta btn-cta-ghost">
+                    Sign In
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="hero-right">
+        <div class="float-card">
+            <div class="card-label">Live Platform Metrics</div>
+            <div class="stat-row">
+                <span class="stat-dot" style="background:#3b82f6;"></span>
+                <span class="stat-name">Applications Processed</span>
+                <span class="stat-value">2,847</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-dot" style="background:#22c55e;"></span>
+                <span class="stat-name">Approval Rate</span>
+                <span class="stat-value">73.2%</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-dot" style="background:#f59e0b;"></span>
+                <span class="stat-name">AI Accuracy</span>
+                <span class="stat-value">96.8%</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-dot" style="background:#a78bfa;"></span>
+                <span class="stat-name">Avg. Processing</span>
+                <span class="stat-value">1.2s</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="features">
+    <div class="feat-card feat-blue">
+        <div class="feat-icon" style="background:rgba(37,99,235,0.12); color:#60a5fa;">
+            <i class="fas fa-brain"></i>
+        </div>
+        <div class="feat-title">Dual-Model AI Engine</div>
+        <div class="feat-desc">Decision Tree + Neural Network ensemble for high-accuracy risk assessment on every application.</div>
+    </div>
+    <div class="feat-card feat-green">
+        <div class="feat-icon" style="background:rgba(16,185,129,0.12); color:#34d399;">
+            <i class="fas fa-shield-halved"></i>
+        </div>
+        <div class="feat-title">Role-Based Access Control</div>
+        <div class="feat-desc">Admin, Officer, and Applicant dashboards with complete audit trail on every decision.</div>
+    </div>
+    <div class="feat-card feat-amber">
+        <div class="feat-icon" style="background:rgba(245,158,11,0.12); color:#fbbf24;">
+            <i class="fas fa-bolt"></i>
+        </div>
+        <div class="feat-title">Real-Time Processing</div>
+        <div class="feat-desc">Sub-second ML inference with instant decision feedback and automated notifications.</div>
+    </div>
+</div>
+
+<div class="home-footer">
+    <div class="footer-label">Built With Industry-Grade Technology</div>
+    <div class="tech-list">
+        <span>DJANGO</span>
+        <span>PYTHON</span>
+        <span>SCIKIT-LEARN</span>
+        <span>BOOTSTRAP</span>
+        <span>CHART.JS</span>
+    </div>
+</div>
+{% endblock %}

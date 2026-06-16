@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% block title %}Officer Analytics - {{ officer.username }}{% endblock %}
+
+{% block content %}
+<div class="row align-items-end mb-4 animate-up">
+    <div class="col-lg-8">
+        <nav class="mb-2">
+            <a href="{% url 'admin_officer_list' %}" class="text-decoration-none small fw-bold text-primary">
+                <i class="fas fa-chevron-left me-2"></i> Officer Directory
+            </a>
+        </nav>
+        <h2 class="fw-bold mb-1 text-slate-800">Officer Performance</h2>
+        <p class="text-muted">Detailed performance metrics and historical activity for {{ officer.get_full_name|default:officer.username }}.</p>
+    </div>
+    <div class="col-lg-4 text-end">
+        <a href="{% url 'admin_toggle_officer_status' officer.id %}" class="btn {% if officer.is_active %}btn-outline-danger{% else %}btn-success{% endif %} px-4 py-2 fw-bold shadow-sm rounded-3">
+            {% if officer.is_active %}
+                <i class="fas fa-user-slash me-2"></i>Deactivate Access
+            {% else %}
+                <i class="fas fa-user-check me-2"></i>Restore Access
+            {% endif %}
+        </a>
+    </div>
+</div>
+
+<div class="row g-4 animate-up" style="animation-delay: 0.1s;">
+    <!-- Profile Card -->
+    <div class="col-lg-4">
+        <div class="pro-card p-4 mb-4 text-center">
+            <div class="avatar-initial mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem; border-radius: 20px;">
+                {{ officer.username|slice:":1"|upper }}
+            </div>
+            <h4 class="fw-bold mb-1">{{ officer.get_full_name|default:officer.username }}</h4>
+            <span class="badge bg-primary bg-opacity-10 text-primary mb-4 px-3 py-2 rounded-pill fw-bold">Loan Officer v2.4</span>
+            
+            <div class="text-start border-top pt-4">
+                <div class="mb-3">
+                    <label class="kpi-label d-block text-muted small">Corporate Email</label>
+                    <span class="fw-bold text-slate-800">{{ officer.email }}</span>
+                </div>
+                <div class="mb-3">
+                    <label class="kpi-label d-block text-muted small">Employee Serial</label>
+                    <span class="fw-bold text-slate-800">#{{ officer.employee_id|default:"OFF-PRD-402" }}</span>
+                </div>
+                <div class="mb-0">
+                    <label class="kpi-label d-block text-muted small">Onboarding Date</label>
+                    <span class="fw-bold text-slate-800">{{ officer.joined_date|date:"F d, Y" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="pro-card p-4 bg-primary text-white border-0">
+            <h6 class="fw-bold mb-3">Institutional Policy</h6>
+            <p class="small opacity-75 mb-0">This officer is authorized to process personal and business capital requests. Decisions are tracked via immutable audit logs.</p>
+        </div>
+    </div>
+
+    <!-- Stats & History -->
+    <div class="col-lg-8">
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="kpi-module pro-card">
+                    <div class="kpi-label">Processed</div>
+                    <div class="kpi-value mt-2">{{ total_processed }}</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="kpi-module pro-card">
+                    <div class="kpi-label text-success">Approved</div>
+                    <div class="kpi-value mt-2 text-success">{{ approved }}</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="kpi-module pro-card">
+                    <div class="kpi-label text-danger">Rejected</div>
+                    <div class="kpi-value mt-2 text-danger">{{ rejected }}</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="kpi-module pro-card">
+                    <div class="kpi-label text-warning">Overrides</div>
+                    <div class="kpi-value mt-2 text-warning">{{ overrides }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pro-card overflow-hidden">
+            <div class="card-header bg-transparent border-0 px-4 py-4">
+                <h5 class="fw-bold mb-0">Institutional Ledger</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 border-0 py-3 text-uppercase small fw-bold text-muted">Application</th>
+                            <th class="border-0 py-3 text-uppercase small fw-bold text-muted">Verdict</th>
+                            <th class="border-0 py-3 text-uppercase small fw-bold text-muted">Integrity</th>
+                            <th class="border-0 py-3 text-uppercase small fw-bold text-muted text-end pe-4">Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in processed_loans %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="fw-bold text-slate-800">{{ app.applicant_name }}</div>
+                                <div class="text-muted x-small">Ref #{{ app.id }}</div>
+                            </td>
+                            <td>
+                                <span class="badge {% if app.status == 'approved' %}bg-success{% else %}bg-danger{% endif %} rounded-pill px-3">
+                                    {{ app.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if app.admin_override %}
+                                    <span class="badge bg-warning text-dark border border-warning border-opacity-20 px-3 rounded-pill">Manual Override</span>
+                                {% else %}
+                                    <span class="badge bg-light text-muted border px-3 rounded-pill">AI Alignment</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end pe-4 text-muted small">
+                                {{ app.processed_at|date:"M d, Y" }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-5">
+                                <div class="opacity-25 mb-3"><i class="fas fa-inbox fa-3x"></i></div>
+                                <h6 class="text-muted">No operational ledger entries for this officer.</h6>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

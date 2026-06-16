@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% block title %}Manage Applications - LendSmart AI{% endblock %}
+
+{% block extra_css %}
+<style>
+.table-toolbar {
+    gap: .75rem;
+}
+.table-toolbar .btn {
+    min-width: 110px;
+}
+.table-toolbar .form-control {
+    min-width: 220px;
+}
+.table-centered th,
+.table-centered td {
+    vertical-align: middle;
+}
+.table-actions .btn {
+    min-width: 92px;
+}
+.status-pill {
+    border-radius: 999px;
+    padding: .45rem .85rem;
+    font-size: .82rem;
+    font-weight: 600;
+}
+.status-pill.bg-success { background-color: #dcfce7; color: #166534; }
+.status-pill.bg-danger { background-color: #fee2e2; color: #991b1b; }
+.status-pill.bg-warning { background-color: #fef3c7; color: #92400e; }
+.status-pill.bg-secondary { background-color: #e2e8f0; color: #334155; }
+.status-pill.bg-info { background-color: #dbeafe; color: #1d4ed8; }
+.card-toolbar {
+    border: 1px solid rgba(148,163,184,0.18);
+    background: #ffffff;
+    border-radius: 24px;
+}
+.table-card {
+    border-radius: 24px;
+    overflow: hidden;
+}
+.table-toolbar .form-select,
+.table-toolbar .form-control {
+    border-radius: 14px;
+}
+.entries-label {
+    font-size: .95rem;
+    color: #475569;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-5 animate-up">
+    <div>
+        <h2 class="fw-bold mb-1 text-slate-800">Operational Portfolio</h2>
+        <p class="text-muted small mb-0">Management and verification of global loan application assets.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'admin_export_applications_csv' %}" class="btn btn-white border shadow-sm btn-sm px-4 py-2 fw-bold rounded-pill">
+            <i class="fas fa-file-csv me-2 text-primary"></i> Export Dataset
+        </a>
+    </div>
+</div>
+
+<div class="pro-card border-0 shadow-sm p-3 mb-4 animate-up">
+    <div class="row g-3 align-items-center">
+        <div class="col-md-8">
+            <div class="d-flex gap-2">
+                <button id="selectAll" type="button" class="btn btn-light btn-sm rounded-pill px-3 fw-bold">Select All</button>
+                <button id="deselectAll" type="button" class="btn btn-white border btn-sm rounded-pill px-3 fw-bold">Deselect</button>
+                <button id="deleteSelected" type="button" class="btn btn-white border btn-sm rounded-pill px-3 fw-bold text-danger">Archived Selected</button>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <form method="get" class="position-relative">
+                <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-slate-400" style="font-size: 0.8rem;"></i>
+                <input type="text" name="q" class="form-control form-control-sm rounded-pill ps-5 border-light" value="{{ filters.q }}" placeholder="Search Reference ID or Applicant...">
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="card table-card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover table-centered mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th scope="col"><input id="masterCheckbox" type="checkbox"></th>
+                    <th scope="col">ID</th>
+                    <th scope="col">Applicant</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Analyst</th>
+                    <th scope="col">CFO</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in applications %}
+                <tr>
+                    <td><input class="row-checkbox" type="checkbox" value="{{ app.id }}"></td>
+                    <td>#{{ app.id }}</td>
+                    <td>
+                        <div class="d-flex flex-column">
+                            <span class="fw-semibold">{{ app.applicant_name }}</span>
+                            <small class="text-muted">{{ app.user.username }}</small>
+                        </div>
+                    </td>
+                    <td>Rs. {{ app.loan_amount|floatformat:0 }}</td>
+                    <td>
+                        {% if app.get_status_display == 'Approved' %}
+                            <span class="badge-pro bg-success-light">Cleared</span>
+                        {% elif app.get_status_display == 'Rejected' %}
+                            <span class="badge-pro bg-danger-light">Declined</span>
+                        {% else %}
+                            <span class="badge-pro bg-warning-light">In Review</span>
+                        {% endif %}
+                    </td>
+                    <td><span class="text-muted small">LS-System</span></td>
+                    <td><span class="text-muted small">LS-Admin</span></td>
+                    <td class="text-end pe-4">
+                        <div class="dropdown">
+                            <button class="btn btn-link text-muted p-2" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2 rounded-4">
+                                <li><a class="dropdown-item rounded-3 small fw-bold" href="{% url 'admin_application_detail' app.id %}"><i class="fas fa-eye me-2 text-primary"></i> View Detail</a></li>
+                                <li><a class="dropdown-item rounded-3 small fw-bold" href="#"><i class="fas fa-print me-2"></i> Print Asset</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item rounded-3 small fw-bold text-danger" href="#"><i class="fas fa-trash me-2"></i> Archive Application</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center py-5 text-muted">
+                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                        <p>No applications matched your search.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="p-3 d-flex justify-content-between align-items-center">
+        <div class="text-muted">Showing 1 to {{ applications|length }} of {{ applications|length }} entries</div>
+        <nav aria-label="Page navigation">
+            <ul class="pagination mb-0">
+                <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const masterCheckbox = document.getElementById('masterCheckbox');
+        const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+        const selectAllButton = document.getElementById('selectAll');
+        const deselectAllButton = document.getElementById('deselectAll');
+        const copyButton = document.getElementById('copyTable');
+        const printButton = document.getElementById('printTable');
+        const deleteSelected = document.getElementById('deleteSelected');
+
+        if (masterCheckbox) {
+            masterCheckbox.addEventListener('change', function () {
+                rowCheckboxes.forEach(cb => cb.checked = masterCheckbox.checked);
+            });
+        }
+
+        if (selectAllButton) {
+            selectAllButton.addEventListener('click', function () {
+                rowCheckboxes.forEach(cb => cb.checked = true);
+            });
+        }
+
+        if (deselectAllButton) {
+            deselectAllButton.addEventListener('click', function () {
+                rowCheckboxes.forEach(cb => cb.checked = false);
+                if (masterCheckbox) masterCheckbox.checked = false;
+            });
+        }
+
+        if (copyButton) {
+            copyButton.addEventListener('click', function () {
+                const rows = Array.from(document.querySelectorAll('table tbody tr')).map(row =>
+                    Array.from(row.querySelectorAll('td')).map(td => td.innerText.trim()).join('\t')
+                ).join('\n');
+                navigator.clipboard.writeText(rows).then(function () {
+                    alert('Table copied to clipboard');
+                });
+            });
+        }
+
+        if (printButton) {
+            printButton.addEventListener('click', function () {
+                window.print();
+            });
+        }
+
+        if (deleteSelected) {
+            deleteSelected.addEventListener('click', function () {
+                const selected = Array.from(rowCheckboxes).filter(cb => cb.checked).length;
+                if (selected === 0) {
+                    alert('Please select at least one application to delete.');
+                    return;
+                }
+                alert('Delete selected is not enabled in this demo.');
+            });
+        }
+    });
+</script>
+{% endblock %}

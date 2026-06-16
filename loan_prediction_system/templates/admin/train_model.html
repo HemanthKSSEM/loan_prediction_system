@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Train ML Model - LoanPredict AI{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="fw-bold">Train Machine Learning Model</h2>
+        <p class="text-muted">Update the ML models with new data for better predictions.</p>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 p-4">
+    <div class="text-center">
+        <i class="fas fa-brain fa-4x text-primary mb-4"></i>
+        <h4>Train ML Models</h4>
+        <p class="text-muted mb-4">This will train both Decision Tree and Artificial Neural Network models using the latest dataset.</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-play me-2"></i>Start Training
+            </button>
+        </form>
+        
+        <div class="mt-4">
+            <small class="text-muted">
+                Training may take a few minutes. Please wait for completion.
+            </small>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 p-3">
+            <h6 class="fw-bold">Decision Tree Model</h6>
+            <p class="text-muted small">Fast and interpretable model for loan approval predictions.</p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 p-3">
+            <h6 class="fw-bold">Neural Network Model</h6>
+            <p class="text-muted small">Advanced deep learning model for higher accuracy predictions.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

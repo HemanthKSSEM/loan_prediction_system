@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}Register Officer - LoanPredict AI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center animate-up">
+    <div class="col-lg-7">
+        <!-- Breadcrumb & Header -->
+        <nav class="mb-4">
+            <a href="{% url 'admin_officer_list' %}" class="text-decoration-none small fw-bold text-primary">
+                <i class="fas fa-chevron-left me-2"></i> Return to Staff Directory
+            </a>
+        </nav>
+        
+        <div class="mb-5">
+            <h2 class="fw-bold mb-1 text-slate-800">Onboard New Officer</h2>
+            <p class="text-muted">Initialize credentials and profile details for new institutional staff.</p>
+        </div>
+
+        <div class="pro-card p-5 overflow-hidden">
+            <form method="POST" id="officerForm">
+                {% csrf_token %}
+                
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="badge bg-primary bg-opacity-10 text-primary mb-3 px-3 py-2 rounded-3 fw-bold">
+                            <i class="fas fa-lock me-2"></i> Security Credentials
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-uppercase text-muted mb-2">Username</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="text-danger x-small mt-1">{{ form.username.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-uppercase text-muted mb-2">System Password</label>
+                        {{ form.password }}
+                        {% if form.password.errors %}
+                            <div class="text-danger x-small mt-1">{{ form.password.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-12 mt-5">
+                        <div class="badge bg-primary bg-opacity-10 text-primary mb-3 px-3 py-2 rounded-3 fw-bold">
+                            <i class="fas fa-id-card me-2"></i> Professional Profile
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label small fw-bold text-uppercase text-muted mb-2">Corporate Email</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-danger x-small mt-1">{{ form.email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-uppercase text-muted mb-2">First Name</label>
+                        {{ form.first_name }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-uppercase text-muted mb-2">Last Name</label>
+                        {{ form.last_name }}
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label small fw-bold text-uppercase text-muted mb-2">Contact Number</label>
+                        {{ form.phone }}
+                    </div>
+                </div>
+
+                <div class="mt-5 pt-4 d-flex justify-content-between align-items-center">
+                    <p class="small text-muted mb-0"><i class="fas fa-info-circle me-2"></i> All fields are required for enterprise compliance.</p>
+                    <div class="d-flex gap-3">
+                        <a href="{% url 'admin_officer_list' %}" class="btn btn-light px-4 py-2 rounded-3 fw-bold">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-5 py-2 fw-bold rounded-3 shadow-lg">
+                            <i class="fas fa-user-plus me-2"></i> Initialize Account
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Apply pro classes to django form fields
+    document.querySelectorAll('input').forEach(el => {
+        el.classList.add('form-control');
+        el.classList.add('py-2');
+        el.classList.add('px-3');
+        el.style.borderRadius = '10px';
+        el.style.border = '1.5px solid #e2e8f0';
+    });
+</script>
+{% endblock %}

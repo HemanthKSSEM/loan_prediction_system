@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LendSmart AI{% endblock %}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --sidebar-w: 264px;
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #f59e0b;
+            --text: #0f172a;
+            --muted: #64748b;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #0f172a;
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            font-size: 14px;
+        }
+
+        /* ═══════════════════════════════════════════
+           SIDEBAR — Deep dark glass
+        ═══════════════════════════════════════════ */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: linear-gradient(180deg, #071028 0%, #0a1632 50%, #071028 100%);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            height: 100vh;
+            position: fixed;
+            left: 0; top: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            border-right: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 4px 0 24px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-brand {
+            display: flex; align-items: center; gap: 12px;
+            padding: 26px 22px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .brand-icon {
+            width: 38px; height: 38px;
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            border-radius: 11px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.95rem; color: #fff;
+            box-shadow: 0 6px 18px rgba(37,99,235,0.4);
+        }
+
+        .brand-text {
+            font-size: 1.08rem; font-weight: 800; color: #f1f5f9;
+            letter-spacing: -0.03em;
+        }
+        .brand-text span { color: #60a5fa; }
+
+        .sidebar-nav {
+            flex: 1; overflow-y: auto; padding: 18px 14px;
+            scrollbar-width: none;
+        }
+        .sidebar-nav::-webkit-scrollbar { display: none; }
+
+        .nav-label {
+            font-size: 0.58rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.14em; color: #3e4c63; padding: 14px 12px 5px;
+        }
+
+        .nav-item { margin-bottom: 3px; }
+
+        .nav-link {
+            display: flex; align-items: center; gap: 13px;
+            padding: 11px 16px; border-radius: 12px;
+            color: #8895b3; text-decoration: none;
+            font-size: 0.875rem; font-weight: 500;
+            transition: all 0.25s cubic-bezier(.4,0,.2,1);
+            position: relative;
+        }
+
+        .nav-link i { width: 20px; font-size: 1rem; opacity: 0.65; transition: all 0.25s ease; }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.08);
+            color: #e2e8f0;
+            transform: translateX(2px);
+        }
+        .nav-link:hover i { opacity: 1; }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+            color: #fff; font-weight: 600;
+            box-shadow: 0 8px 24px rgba(37,99,235,0.45), 0 2px 8px rgba(79,70,229,0.3);
+        }
+        .nav-link.active i { opacity: 1; }
+
+        .nav-link.nav-logout { color: #f87171; }
+        .nav-link.nav-logout:hover { background: rgba(248,113,113,0.1); color: #fca5a5; transform: translateX(2px); }
+
+        .sidebar-footer {
+            padding: 14px; border-top: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .sidebar-user {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 12px; border-radius: 11px;
+            background: rgba(255,255,255,0.03);
+        }
+
+        .user-avatar {
+            width: 34px; height: 34px;
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.82rem; font-weight: 700; color: #fff;
+        }
+
+        .user-name { font-size: 0.78rem; font-weight: 600; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-role { font-size: 0.66rem; color: #4b5e7a; margin-top: 1px; }
+
+        /* ═══════════════════════════════════════════
+           MAIN WRAPPER — Rich gradient canvas
+        ═══════════════════════════════════════════ */
+        .main-wrapper {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #eef4ff 0%, #f7f9fc 50%, #eef2ff 100%);
+            background-attachment: fixed;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Floating ambient orbs */
+        .main-wrapper::before {
+            content: '';
+            position: fixed;
+            top: -120px; right: 60px;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(37,99,235,0.07) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .main-wrapper::after {
+            content: '';
+            position: fixed;
+            bottom: -100px; left: 300px;
+            width: 550px; height: 550px;
+            background: radial-gradient(circle, rgba(124,58,237,0.05) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .page-content {
+            padding: 36px 40px;
+            flex: 1;
+            max-width: 1440px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ═══════════════════════════════════════════
+           PAGE HEADER
+        ═══════════════════════════════════════════ */
+        .page-header {
+            display: flex; align-items: flex-start; justify-content: space-between;
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 1.85rem; font-weight: 800; color: var(--text);
+            letter-spacing: -0.04em; line-height: 1.15;
+        }
+
+        .page-subtitle {
+            font-size: 0.88rem; color: var(--muted); margin-top: 5px;
+        }
+
+        /* ═══════════════════════════════════════════
+           KPI CARDS — Glassmorphism + accent borders
+        ═══════════════════════════════════════════ */
+        .kpi-card {
+            background: rgba(255,255,255,0.75);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255,255,255,0.8);
+            border-radius: 24px;
+            padding: 28px;
+            transition: all 0.3s cubic-bezier(.4,0,.2,1);
+            position: relative;
+            overflow: hidden;
+            box-shadow:
+                0 4px 20px rgba(15,23,42,0.06),
+                0 1px 4px rgba(15,23,42,0.03);
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow:
+                0 24px 56px rgba(15,23,42,0.12),
+                0 10px 24px rgba(37,99,235,0.08);
+        }
+
+        /* Top accent line */
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+        }
+
+        .kpi-blue::before   { background: linear-gradient(90deg, #2563eb, #60a5fa); }
+        .kpi-green::before  { background: linear-gradient(90deg, #16a34a, #4ade80); }
+        .kpi-amber::before  { background: linear-gradient(90deg, #dc2626, #f87171); }
+        .kpi-purple::before { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+
+        .kpi-icon {
+            width: 52px; height: 52px;
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.25rem;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .kpi-icon-blue  { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #1d4ed8; box-shadow: 0 6px 16px rgba(37,99,235,0.15); }
+        .kpi-icon-green { background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #15803d; box-shadow: 0 6px 16px rgba(22,163,74,0.15); }
+        .kpi-icon-red   { background: linear-gradient(135deg, #fee2e2, #fecaca); color: #dc2626; box-shadow: 0 6px 16px rgba(220,38,38,0.15); }
+        .kpi-icon-purple { background: linear-gradient(135deg, #ede9fe, #ddd6fe); color: #7c3aed; box-shadow: 0 6px 16px rgba(124,58,237,0.15); }
+
+        .kpi-label {
+            font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.08em; color: var(--muted); margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 2.6rem; font-weight: 800; color: var(--text);
+            letter-spacing: -0.04em; line-height: 1; margin-bottom: 10px;
+        }
+
+        .kpi-trend { font-size: 0.78rem; font-weight: 500; color: var(--muted); }
+        .trend-up   { color: var(--success); font-weight: 600; }
+        .trend-down { color: var(--danger);  font-weight: 600; }
+
+        /* ═══════════════════════════════════════════
+           SECTION CARD — For tables, charts, widgets
+        ═══════════════════════════════════════════ */
+        .section-card {
+            background: rgba(255,255,255,0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.7);
+            border-radius: 22px;
+            overflow: hidden;
+            margin-bottom: 24px;
+            box-shadow:
+                0 4px 16px rgba(15,23,42,0.05),
+                0 1px 3px rgba(15,23,42,0.03);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .section-card:hover {
+            box-shadow:
+                0 16px 40px rgba(15,23,42,0.08),
+                0 6px 16px rgba(37,99,235,0.04);
+        }
+
+        .section-header {
+            padding: 20px 26px;
+            border-bottom: 1px solid rgba(226,232,240,0.6);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .section-title {
+            font-size: 0.98rem; font-weight: 700; color: var(--text);
+            letter-spacing: -0.01em;
+        }
+
+        .section-subtitle {
+            font-size: 0.78rem; color: var(--muted); margin-top: 2px;
+        }
+
+        /* ═══════════════════════════════════════════
+           DATA TABLE
+        ═══════════════════════════════════════════ */
+        .data-table { width: 100%; border-collapse: collapse; }
+
+        .data-table thead th {
+            font-size: 0.66rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.09em; color: var(--muted); padding: 13px 16px;
+            background: rgba(241,245,249,0.5);
+            border-bottom: 1px solid rgba(226,232,240,0.6);
+        }
+        .data-table thead th:first-child { padding-left: 26px; }
+        .data-table thead th:last-child  { padding-right: 26px; }
+
+        .data-table tbody tr {
+            border-bottom: 1px solid rgba(241,245,249,0.5);
+            transition: background 0.12s ease;
+        }
+        .data-table tbody tr:hover  { background: rgba(248,250,252,0.7); }
+        .data-table tbody tr:last-child { border-bottom: none; }
+
+        .data-table tbody td {
+            padding: 16px; font-size: 0.875rem; color: var(--text); vertical-align: middle;
+        }
+        .data-table tbody td:first-child { padding-left: 26px; }
+        .data-table tbody td:last-child  { padding-right: 26px; }
+
+        /* ═══════════════════════════════════════════
+           BADGES
+        ═══════════════════════════════════════════ */
+        .badge-status {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 11px; border-radius: 7px;
+            font-size: 0.72rem; font-weight: 600;
+        }
+
+        .badge-success { background: rgba(22,163,74,0.1); color: #15803d; }
+        .badge-danger  { background: rgba(220,38,38,0.1); color: #b91c1c; }
+        .badge-warning { background: rgba(245,158,11,0.1); color: #b45309; }
+        .badge-neutral { background: rgba(100,116,139,0.1); color: #475569; }
+        .badge-blue    { background: rgba(37,99,235,0.1); color: #1d4ed8; }
+
+        /* Backward compat aliases */
+        .badge-pro { display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px; border-radius: 7px; font-size: 0.72rem; font-weight: 600; }
+        .bg-success-light { background: rgba(22,163,74,0.1); color: #15803d; }
+        .bg-danger-light  { background: rgba(220,38,38,0.1); color: #b91c1c; }
+        .bg-warning-light { background: rgba(245,158,11,0.1); color: #b45309; }
+        .bg-primary-light { background: rgba(37,99,235,0.1); color: #1d4ed8; }
+
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+        .dot-success { background: #16a34a; }
+        .dot-danger  { background: #dc2626; }
+        .dot-warning { background: #f59e0b; }
+        .dot-neutral { background: #94a3b8; }
+
+        /* ═══════════════════════════════════════════
+           BUTTONS
+        ═══════════════════════════════════════════ */
+        .btn-primary, a.btn-primary {
+            background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
+            border: none !important;
+            border-radius: 13px;
+            padding: 10px 22px;
+            font-weight: 600; font-size: 0.875rem;
+            color: #fff !important;
+            box-shadow: 0 4px 14px rgba(37,99,235,0.25);
+            transition: all 0.25s ease;
+            display: inline-flex; align-items: center;
+        }
+
+        .btn-primary:hover, a.btn-primary:hover {
+            box-shadow: 0 10px 28px rgba(37,99,235,0.35);
+            transform: translateY(-2px);
+            filter: brightness(1.06);
+        }
+
+        .btn-secondary, a.btn-secondary {
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(226,232,240,0.8);
+            border-radius: 13px;
+            padding: 9px 18px;
+            font-weight: 600; font-size: 0.875rem;
+            color: var(--text);
+            transition: all 0.2s ease;
+            display: inline-flex; align-items: center;
+        }
+
+        .btn-secondary:hover, a.btn-secondary:hover {
+            background: rgba(255,255,255,0.9);
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        /* ═══════════════════════════════════════════
+           PROGRESS BAR
+        ═══════════════════════════════════════════ */
+        .progress-bar-pro {
+            height: 7px; border-radius: 100px;
+            background: rgba(226,232,240,0.6); overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%; border-radius: 100px;
+            background: linear-gradient(90deg, #2563eb, #60a5fa);
+        }
+        .progress-fill-green { background: linear-gradient(90deg, #16a34a, #4ade80); }
+
+        /* ═══════════════════════════════════════════
+           AVATARS
+        ═══════════════════════════════════════════ */
+        .avatar {
+            width: 40px; height: 40px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.88rem; font-weight: 700;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .avatar-blue  { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #1d4ed8; }
+        .avatar-green { background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #15803d; }
+        .avatar-amber { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #b45309; }
+        .avatar-slate { background: linear-gradient(135deg, #e2e8f0, #cbd5e1); color: #334155; }
+        .avatar-rose  { background: linear-gradient(135deg, #ffe4e6, #fecdd3); color: #be123c; }
+
+        /* ═══════════════════════════════════════════
+           MISC
+        ═══════════════════════════════════════════ */
+        .x-small { font-size: 0.72rem; }
+
+        .dropdown-menu {
+            border: 1px solid rgba(226,232,240,0.8);
+            border-radius: 14px;
+            box-shadow: 0 12px 36px rgba(15,23,42,0.12);
+            padding: 6px; background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(12px);
+        }
+
+        .dropdown-item {
+            border-radius: 9px; padding: 9px 12px;
+            font-weight: 500; font-size: 0.84rem;
+            transition: background 0.12s;
+        }
+        .dropdown-item:hover { background: #f1f5f9; }
+
+        .alert {
+            border-radius: 14px; border: none; font-size: 0.875rem;
+            background: rgba(255,255,255,0.7); backdrop-filter: blur(8px);
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .animate-up { animation: fadeUp 0.6s cubic-bezier(.4,0,.2,1) forwards; }
+
+        @media (max-width: 991px) {
+            .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+            .sidebar.active { transform: translateX(0); }
+            .main-wrapper { margin-left: 0 !important; width: 100% !important; }
+        }
+
+        /* ═══════════════════════════════════════════
+           CARD (Legacy support)
+        ═══════════════════════════════════════════ */
+        .card, .pro-card {
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.7);
+            border-radius: 22px;
+            box-shadow: 0 4px 16px rgba(15,23,42,0.05);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        .card:hover, .pro-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(15,23,42,0.08);
+        }
+
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid rgba(226,232,240,0.5);
+            padding: 18px 24px;
+            font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.07em; color: var(--muted);
+        }
+
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body>
+
+    {% if request.resolver_match.url_name not in 'home,login,register' %}
+    <aside class="sidebar" id="mainSidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon"><i class="fas fa-landmark"></i></div>
+            <div class="brand-text">LendSmart <span>AI</span></div>
+        </div>
+
+        <nav class="sidebar-nav">
+            {% if user.is_authenticated %}
+                {% if user.role == 'admin' %}
+                    <div class="nav-section">
+                        <span class="nav-label">Menu</span>
+                        <div class="nav-item"><a href="{% url 'admin_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}"><i class="fas fa-chart-line"></i> Dashboard</a></div>
+                        <div class="nav-item"><a href="{% url 'admin_application_list' %}" class="nav-link {% if 'application' in request.resolver_match.url_name %}active{% endif %}"><i class="fas fa-folder-open"></i> Applications</a></div>
+                        <div class="nav-item"><a href="{% url 'admin_officer_list' %}" class="nav-link {% if 'officer' in request.resolver_match.url_name %}active{% endif %}"><i class="fas fa-users"></i> Loan Officers</a></div>
+                    </div>
+                    <div class="nav-section">
+                        <span class="nav-label">Account</span>
+                        <div class="nav-item"><a href="{% url 'logout' %}" class="nav-link nav-logout"><i class="fas fa-sign-out-alt"></i> Logout</a></div>
+                    </div>
+                {% elif user.role == 'officer' %}
+                    <div class="nav-section">
+                        <span class="nav-label">Menu</span>
+                        <div class="nav-item"><a href="{% url 'officer_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'officer_dashboard' %}active{% endif %}"><i class="fas fa-inbox"></i> My Queue</a></div>
+                    </div>
+                    <div class="nav-section">
+                        <span class="nav-label">Account</span>
+                        <div class="nav-item"><a href="{% url 'logout' %}" class="nav-link nav-logout"><i class="fas fa-sign-out-alt"></i> Logout</a></div>
+                    </div>
+                {% else %}
+                    <div class="nav-section">
+                        <span class="nav-label">Menu</span>
+                        <div class="nav-item"><a href="{% url 'user_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'user_dashboard' %}active{% endif %}"><i class="fas fa-chart-pie"></i> Dashboard</a></div>
+                        <div class="nav-item"><a href="{% url 'apply_loan' %}" class="nav-link {% if request.resolver_match.url_name == 'apply_loan' %}active{% endif %}"><i class="fas fa-plus-circle"></i> Apply for Loan</a></div>
+                        <div class="nav-item"><a href="{% url 'emi_calculator' %}" class="nav-link {% if request.resolver_match.url_name == 'emi_calculator' %}active{% endif %}"><i class="fas fa-calculator"></i> EMI Calculator</a></div>
+                    </div>
+                    <div class="nav-section">
+                        <span class="nav-label">Account</span>
+                        <div class="nav-item"><a href="{% url 'logout' %}" class="nav-link nav-logout"><i class="fas fa-sign-out-alt"></i> Logout</a></div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="nav-section">
+                    <span class="nav-label">Get Started</span>
+                    <div class="nav-item"><a href="{% url 'login' %}" class="nav-link"><i class="fas fa-sign-in-alt"></i> Sign In</a></div>
+                    <div class="nav-item"><a href="{% url 'register' %}" class="nav-link"><i class="fas fa-user-plus"></i> Create Account</a></div>
+                </div>
+            {% endif %}
+        </nav>
+
+        {% if user.is_authenticated %}
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="user-avatar">{{ user.username|slice:":1"|upper }}</div>
+                <div>
+                    <div class="user-name">{{ user.username }}</div>
+                    <div class="user-role">{{ user.role|capfirst }}</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </aside>
+    {% endif %}
+
+    <div class="main-wrapper" style="{% if request.resolver_match.url_name in 'home,login,register' %}margin-left:0;width:100%;{% endif %}">
+        <main class="page-content">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>{{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>$('#sidebarToggle').on('click', function(){$('#mainSidebar').toggleClass('active');});</script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

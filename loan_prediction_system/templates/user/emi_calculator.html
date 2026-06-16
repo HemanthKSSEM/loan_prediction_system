@@ -1,0 +1,313 @@
+{% extends 'base.html' %}
+{% block title %}EMI Calculator - LendSmart AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .calc-card {
+        border-radius: 24px;
+        border: 1px solid rgba(148, 163, 184, 0.1);
+        background: #ffffff;
+        transition: all 0.3s ease;
+    }
+    
+    .range-slider {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 6px;
+        border-radius: 5px;
+        background: #e2e8f0;
+        outline: none;
+        margin: 20px 0;
+    }
+    
+    .range-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--primary);
+        cursor: pointer;
+        border: 3px solid #fff;
+        box-shadow: 0 0 0 4px var(--primary-light);
+    }
+
+    .result-box {
+        background: linear-gradient(135deg, var(--primary) 0%, #1e40af 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        color: white;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        opacity: 0.8;
+        font-weight: 700;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row align-items-end mb-4 animate-up">
+    <div class="col-md-8">
+        <h2 class="fw-bold mb-1 text-slate-800">Financial Planning Tool</h2>
+        <p class="text-muted mb-0">Interactive EMI calculator with real-time interest breakdown and amortization insights.</p>
+    </div>
+</div>
+
+<div class="row g-4 animate-up">
+    <div class="col-lg-7">
+        <form method="post" id="emiForm" class="card calc-card p-4 h-100 shadow-sm">
+            {% csrf_token %}
+            <div class="mb-5">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label class="fw-bold text-slate-700">Loan Amount</label>
+                    <div class="input-group input-group-sm w-auto">
+                        <span class="input-group-text bg-light border-0">Rs.</span>
+                        <input type="number" name="loan_amount" id="loanAmountInput" class="form-control border-0 bg-light fw-bold" value="{{ emi_result.loan_amount|default:500000|floatformat:0 }}" style="width: 120px;">
+                    </div>
+                </div>
+                <input type="range" id="loanAmountSlider" class="range-slider" min="10000" max="10000000" step="10000" value="{{ emi_result.loan_amount|default:500000|floatformat:0 }}">
+                <div class="d-flex justify-content-between x-small text-muted fw-bold">
+                    <span>10K</span>
+                    <span>1Cr</span>
+                </div>
+            </div>
+
+            <div class="mb-5">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label class="fw-bold text-slate-700">Interest Rate (P.A)</label>
+                    <div class="input-group input-group-sm w-auto">
+                        <input type="number" name="interest_rate" id="interestRateInput" class="form-control border-0 bg-light fw-bold text-end" value="{{ emi_result.interest_rate|default:10.5 }}" style="width: 80px;">
+                        <span class="input-group-text bg-light border-0">%</span>
+                    </div>
+                </div>
+                <input type="range" id="interestRateSlider" class="range-slider" min="1" max="30" step="0.1" value="{{ emi_result.interest_rate|default:10.5 }}">
+                <div class="d-flex justify-content-between x-small text-muted fw-bold">
+                    <span>1%</span>
+                    <span>30%</span>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label class="fw-bold text-slate-700">Loan Tenure</label>
+                    <div class="input-group input-group-sm w-auto">
+                        <input type="number" name="loan_term" id="loanTenureInput" class="form-control border-0 bg-light fw-bold text-end" value="{{ emi_result.loan_term|default:120 }}" style="width: 80px;">
+                        <span class="input-group-text bg-light border-0">Mo</span>
+                    </div>
+                </div>
+                <input type="range" id="loanTenureSlider" class="range-slider" min="6" max="360" step="6" value="{{ emi_result.loan_term|default:120 }}">
+                <div class="d-flex justify-content-between x-small text-muted fw-bold">
+                    <span>6 Mo</span>
+                    <span>30 Yr</span>
+                </div>
+            </div>
+            
+            <noscript>
+                <button type="submit" class="btn btn-primary w-100">Calculate (Backend)</button>
+            </noscript>
+        </form>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card calc-card p-4 h-100 shadow-sm">
+            <div class="result-box mb-4 shadow">
+                <div class="stat-label">Monthly EMI</div>
+                <div class="display-5 fw-bold mb-0" id="emiDisplay">Rs. {{ emi_result.emi|default:0|floatformat:0 }}</div>
+            </div>
+            
+            <div class="row g-3 mb-4">
+                <div class="col-6">
+                    <div class="p-3 border rounded-4">
+                        <div class="stat-label text-muted">Principal Amount</div>
+                        <div class="stat-value text-slate-800" id="principalDisplay">Rs. {{ emi_result.loan_amount|default:0|floatformat:0 }}</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="p-3 border rounded-4">
+                        <div class="stat-label text-muted">Total Interest</div>
+                        <div class="stat-value text-primary" id="interestDisplay">Rs. {{ emi_result.total_interest|default:0|floatformat:0 }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button id="recalculateBtn" class="btn btn-primary w-100 py-2 fw-bold">
+                    <i class="fas fa-sync-alt me-2"></i> Recalculate Now
+                </button>
+            </div>
+
+            <div class="text-center">
+                <div id="chartContainer" style="height: 180px; width: 180px;" class="mx-auto">
+                    <canvas id="emiBreakdownChart"></canvas>
+                </div>
+                <div class="mt-4">
+                    <div class="stat-label text-muted">Total Amount Payable</div>
+                    <div class="h4 fw-bold text-slate-800" id="totalPayableDisplay">Rs. {{ emi_result.total_payment|default:0|floatformat:0 }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5 animate-up">
+    <div class="col-12">
+        <div class="card calc-card p-4 shadow-sm border-0">
+            <h5 class="fw-bold mb-4">Loan Breakdown</h5>
+            <div class="table-responsive">
+                <table class="table table-borderless align-middle">
+                    <thead>
+                        <tr class="text-muted small text-uppercase fw-bold">
+                            <th>Metric</th>
+                            <th>Value</th>
+                            <th>Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><i class="fas fa-circle text-light-slate me-2" style="font-size: 0.6rem;"></i> Principal Amount</td>
+                            <td id="tablePrincipal" class="fw-bold">Rs. 0</td>
+                            <td id="principalPercent">0%</td>
+                        </tr>
+                        <tr>
+                            <td><i class="fas fa-circle text-primary me-2" style="font-size: 0.6rem;"></i> Total Interest</td>
+                            <td id="tableInterest" class="fw-bold">Rs. 0</td>
+                            <td id="interestPercent">0%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const amountSlider = document.getElementById('loanAmountSlider');
+        const amountInput = document.getElementById('loanAmountInput');
+        const rateSlider = document.getElementById('interestRateSlider');
+        const rateInput = document.getElementById('interestRateInput');
+        const tenureSlider = document.getElementById('loanTenureSlider');
+        const tenureInput = document.getElementById('loanTenureInput');
+
+        const emiDisplay = document.getElementById('emiDisplay');
+        const principalDisplay = document.getElementById('principalDisplay');
+        const interestDisplay = document.getElementById('interestDisplay');
+        const totalPayableDisplay = document.getElementById('totalPayableDisplay');
+        
+        const tablePrincipal = document.getElementById('tablePrincipal');
+        const tableInterest = document.getElementById('tableInterest');
+        const principalPercent = document.getElementById('principalPercent');
+        const interestPercent = document.getElementById('interestPercent');
+        const recalculateBtn = document.getElementById('recalculateBtn');
+
+        // Initialize Chart
+        let emiChart = null;
+        try {
+            const ctx = document.getElementById('emiBreakdownChart').getContext('2d');
+            if (typeof Chart !== 'undefined') {
+                emiChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Principal', 'Interest'],
+                        datasets: [{
+                            data: [0, 0],
+                            backgroundColor: ['#e2e8f0', '#2563eb'],
+                            borderWidth: 0,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        cutout: '75%',
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            } else {
+                console.warn('Chart.js not loaded. Visual chart will be hidden.');
+                document.getElementById('chartContainer').style.display = 'none';
+            }
+        } catch (e) {
+            console.error('Chart initialization failed:', e);
+            document.getElementById('chartContainer').style.display = 'none';
+        }
+
+        function formatCurrency(val) {
+            return 'Rs. ' + Math.round(val).toLocaleString('en-IN');
+        }
+
+        function calculateEMI() {
+            const P = parseFloat(amountInput.value) || 0;
+            const R = (parseFloat(rateInput.value) || 0) / 12 / 100;
+            const N = parseFloat(tenureInput.value) || 1;
+
+            let emi = 0;
+            if (R === 0) {
+                emi = P / N;
+            } else {
+                emi = P * R * Math.pow(1 + R, N) / (Math.pow(1 + R, N) - 1);
+            }
+
+            const totalPayable = emi * N;
+            const totalInterest = totalPayable - P;
+
+            emiDisplay.innerText = formatCurrency(emi);
+            principalDisplay.innerText = formatCurrency(P);
+            interestDisplay.innerText = formatCurrency(totalInterest);
+            totalPayableDisplay.innerText = formatCurrency(totalPayable);
+            
+            tablePrincipal.innerText = formatCurrency(P);
+            tableInterest.innerText = formatCurrency(totalInterest);
+            
+            const pPct = ((P / totalPayable) * 100).toFixed(1);
+            const iPct = ((totalInterest / totalPayable) * 100).toFixed(1);
+            
+            principalPercent.innerText = pPct + '%';
+            interestPercent.innerText = iPct + '%';
+
+            // Update Chart
+            if (emiChart) {
+                emiChart.data.datasets[0].data = [P, totalInterest];
+                emiChart.update();
+            }
+        }
+
+        // Event Listeners for sync and recalc
+        const inputs = [
+            [amountSlider, amountInput],
+            [rateSlider, rateInput],
+            [tenureSlider, tenureInput]
+        ];
+
+        inputs.forEach(([slider, input]) => {
+            slider.addEventListener('input', (e) => {
+                input.value = e.target.value;
+                calculateEMI();
+            });
+            input.addEventListener('change', (e) => {
+                slider.value = e.target.value;
+                calculateEMI();
+            });
+        });
+
+        if (recalculateBtn) {
+            recalculateBtn.addEventListener('click', calculateEMI);
+        }
+
+        // Initial Calc
+        calculateEMI();
+    });
+</script>
+{% endblock %}

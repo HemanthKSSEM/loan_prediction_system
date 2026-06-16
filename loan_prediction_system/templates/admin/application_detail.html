@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+{% block title %}Application Review - LoanPredict AI{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center flex-column flex-sm-row gap-3">
+            <div>
+                <h2 class="fw-bold">Application Review</h2>
+                <p class="text-muted">Review the application, prediction result, and update final status.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-primary">Back to Dashboard</a>
+                <a href="{% url 'admin_application_list' %}" class="btn btn-outline-secondary">Back to Applications</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row gy-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+            <h5 class="fw-bold mb-3">Applicant Details</h5>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <strong>Name</strong>
+                    <p class="mb-0">{{ application.applicant_name }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Username</strong>
+                    <p class="mb-0">{{ application.user.username }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Email</strong>
+                    <p class="mb-0">{{ application.email }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Phone</strong>
+                    <p class="mb-0">{{ application.phone }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Age</strong>
+                    <p class="mb-0">{{ application.age }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Gender</strong>
+                    <p class="mb-0">{{ application.gender }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Marital Status</strong>
+                    <p class="mb-0">{{ application.marital_status }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Dependents</strong>
+                    <p class="mb-0">{{ application.dependents }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Education</strong>
+                    <p class="mb-0">{{ application.education }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Employment Type</strong>
+                    <p class="mb-0">{{ application.employment_type }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Self Employed</strong>
+                    <p class="mb-0">{{ application.self_employed }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+            <h5 class="fw-bold mb-3">Loan & Financial Details</h5>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <strong>Loan Amount</strong>
+                    <p class="mb-0">Rs. {{ application.loan_amount|floatformat:0 }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Loan Term</strong>
+                    <p class="mb-0">{{ application.loan_term }} months</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Income</strong>
+                    <p class="mb-0">Rs. {{ application.income_annum|floatformat:0 }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>CIBIL Score</strong>
+                    <p class="mb-0">{{ application.cibil_score }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Property Area</strong>
+                    <p class="mb-0">{{ application.property_area }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Assets (Residential)</strong>
+                    <p class="mb-0">Rs. {{ application.residential_assets_value|floatformat:0 }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Assets (Commercial)</strong>
+                    <p class="mb-0">Rs. {{ application.commercial_assets_value|floatformat:0 }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Assets (Luxury)</strong>
+                    <p class="mb-0">Rs. {{ application.luxury_assets_value|floatformat:0 }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Bank Assets</strong>
+                    <p class="mb-0">Rs. {{ application.bank_asset_value|floatformat:0 }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 p-0 mb-4 overflow-hidden">
+            <div class="card-header border-0 py-3 
+                {% if application.effective_ml_prediction|lower == 'approved' %}bg-success bg-opacity-10
+                {% elif application.effective_ml_prediction|lower == 'rejected' %}bg-danger bg-opacity-10
+                {% else %}bg-secondary bg-opacity-10{% endif %}">
+                <h5 class="fw-bold mb-0 
+                    {% if application.effective_ml_prediction|lower == 'approved' %}text-success
+                    {% elif application.effective_ml_prediction|lower == 'rejected' %}text-danger
+                    {% else %}text-secondary{% endif %}">
+                    <i class="fas fa-robot me-2"></i>AI Recommendation Panel
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                        <p class="text-muted text-uppercase small fw-bold mb-1">Prediction Result</p>
+                        <h2 class="fw-bold mb-0
+                            {% if application.effective_ml_prediction|lower == 'approved' %}text-success
+                            {% elif application.effective_ml_prediction|lower == 'rejected' %}text-danger
+                            {% else %}text-secondary{% endif %}">
+                            {{ application.effective_ml_prediction|default:'Pending'|upper }}
+                        </h2>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex flex-column justify-content-center h-100">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted fw-bold small text-uppercase">Confidence Score</span>
+                                <span class="fw-bold">{% if application.prediction_confidence %}{{ application.prediction_confidence|floatformat:1 }}%{% else %}N/A{% endif %}</span>
+                            </div>
+                            <div class="progress" style="height: 10px; border-radius: 10px;">
+                                <div class="progress-bar 
+                                    {% if application.effective_ml_prediction|lower == 'approved' %}bg-success
+                                    {% elif application.effective_ml_prediction|lower == 'rejected' %}bg-danger
+                                    {% else %}bg-secondary{% endif %}" 
+                                    role="progressbar" 
+                                    style="width: {{ application.prediction_confidence|default:0|floatformat:0 }}%;" 
+                                    aria-valuenow="{{ application.prediction_confidence|default:0|floatformat:0 }}" 
+                                    aria-valuemin="0" 
+                                    aria-valuemax="100">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr class="my-4 text-muted opacity-25">
+                
+                <div class="row text-center text-md-start">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <p class="text-muted text-uppercase small fw-bold mb-1">Officer Decision</p>
+                        <span class="badge {% if application.effective_admin_decision|lower == 'approved' %}bg-success{% elif application.effective_admin_decision|lower == 'rejected' %}bg-danger{% else %}bg-secondary{% endif %} py-2 px-3 fs-6">
+                            {{ application.effective_admin_decision|default:'Pending'|capfirst }}
+                        </span>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="text-muted text-uppercase small fw-bold mb-1">Match Status</p>
+                        {% if application.effective_ml_prediction %}
+                            {% if application.prediction_match %}
+                                <span class="badge bg-success py-2 px-3 fs-6"><i class="fas fa-check-circle me-1"></i> AI MATCH</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark py-2 px-3 fs-6"><i class="fas fa-exclamation-triangle me-1"></i> OVERRIDDEN</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="badge bg-secondary py-2 px-3 fs-6">Pending</span>
+                        {% endif %}
+                        <div class="mt-4 p-3 bg-light rounded-3 border">
+                            <h6 class="fw-bold mb-2 small text-uppercase text-muted">Audit Information</h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="small">Decision By:</span>
+                                <span class="badge bg-white text-dark border fw-bold">{{ application.processed_by.username|default:"Not Processed" }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <span class="small">Processed At:</span>
+                                <span class="small text-muted">{{ application.processed_at|date:"M d, Y H:i"|default:"Pending" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+            <h5 class="fw-bold mb-3">Uploaded Documents</h5>
+            {% if documents %}
+            <ul class="list-group list-group-flush">
+                {% for document in documents %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ document.get_document_type_display }}</span>
+                    <a href="{{ document.file_path.url }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-muted mb-0">No documents uploaded.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+            <h5 class="fw-bold mb-3">Review Application</h5>
+            <form id="adminReviewForm" method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Final Status</label>
+                    {{ form.status }}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Officer Notes</label>
+                    {{ form.admin_notes }}
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Save Review</button>
+            </form>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h6 class="fw-bold">Quick Info</h6>
+            <p class="mb-2"><strong>Application ID:</strong> #{{ application.id }}</p>
+            <p class="mb-2"><strong>Submitted:</strong> {{ application.created_at|date:'M d, Y H:i' }}</p>
+            <p class="mb-0"><strong>Last Updated:</strong> {{ application.updated_at|date:'M d, Y H:i' }}</p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var reviewForm = document.getElementById('adminReviewForm');
+        if (reviewForm) {
+            reviewForm.addEventListener('submit', function(event) {
+                var statusField = reviewForm.querySelector('select[name="status"]');
+                var statusText = statusField ? statusField.options[statusField.selectedIndex].text : 'change status';
+                if (!confirm('Are you sure you want to save the application as "' + statusText + '"?')) {
+                    event.preventDefault();
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

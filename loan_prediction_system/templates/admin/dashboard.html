@@ -1,0 +1,358 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — LendSmart AI{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Header ── */
+.dash-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100%;
+    margin-bottom: 28px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid rgba(226,232,240,0.45);
+    position: relative;
+}
+.dash-header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -40px;
+    width: 360px; height: 220px;
+    background: radial-gradient(ellipse, rgba(37,99,235,0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+.greet-label {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: #94a3b8;
+    letter-spacing: 0.01em;
+    margin-bottom: 2px;
+}
+.greet-name {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.035em;
+    line-height: 1.15;
+}
+.greet-date {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.73rem;
+    color: #94a3b8;
+    margin-top: 5px;
+}
+.greet-date i { font-size: 0.62rem; color: #c7d2fe; }
+.dash-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-shrink: 0;
+}
+.topbar-btn {
+    height: 36px;
+    padding: 0 15px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.65);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(226,232,240,0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    color: #64748b;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    white-space: nowrap;
+    font-family: 'Inter', sans-serif;
+}
+.topbar-btn:hover {
+    background: #fff;
+    color: #2563eb;
+    border-color: rgba(37,99,235,0.2);
+    box-shadow: 0 2px 12px rgba(37,99,235,0.1);
+    text-decoration: none;
+}
+.topbar-btn i { font-size: 0.75rem; }
+.topbar-btn.sq { width: 36px; padding: 0; position: relative; }
+.topbar-btn .ndot {
+    position: absolute;
+    top: 7px; right: 7px;
+    width: 6px; height: 6px;
+    background: #2563eb;
+    border-radius: 50%;
+    border: 1.5px solid #f4f7ff;
+}
+.top-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2563eb, #4f46e5);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.78rem;
+    box-shadow: 0 0 0 2.5px rgba(37,99,235,0.18), 0 2px 8px rgba(37,99,235,0.22);
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+/* ── Stat Cards ── */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.stat-card{background:rgba(255,255,255,.72);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.8);border-radius:20px;padding:22px 24px;position:relative;overflow:hidden;transition:all .28s cubic-bezier(.4,0,.2,1)}
+.stat-card:hover{transform:translateY(-3px);box-shadow:0 16px 40px rgba(15,23,42,.08)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.stat-card.c-blue::before{background:linear-gradient(90deg,#2563eb,#60a5fa)}
+.stat-card.c-green::before{background:linear-gradient(90deg,#16a34a,#4ade80)}
+.stat-card.c-red::before{background:linear-gradient(90deg,#dc2626,#f87171)}
+.stat-card.c-indigo::before{background:linear-gradient(90deg,#4f46e5,#818cf8)}
+.stat-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.05rem;margin-bottom:16px}
+.stat-icon.i-blue{background:linear-gradient(135deg,#eff6ff,#dbeafe);color:#2563eb}
+.stat-icon.i-green{background:linear-gradient(135deg,#f0fdf4,#dcfce7);color:#16a34a}
+.stat-icon.i-red{background:linear-gradient(135deg,#fef2f2,#fee2e2);color:#dc2626}
+.stat-icon.i-indigo{background:linear-gradient(135deg,#eef2ff,#e0e7ff);color:#4f46e5}
+.stat-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:#94a3b8;margin-bottom:6px}
+.stat-num{font-size:2rem;font-weight:800;color:#0f172a;letter-spacing:-0.04em;line-height:1}
+.stat-sub{font-size:.75rem;color:#94a3b8;margin-top:8px}
+.stat-sub .up{color:#16a34a;font-weight:600}
+
+/* ── Glass Panel ── */
+.g-panel{background:rgba(255,255,255,.68);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.75);border-radius:20px;overflow:hidden;transition:box-shadow .3s}
+.g-panel:hover{box-shadow:0 12px 36px rgba(15,23,42,.06)}
+.g-head{padding:18px 24px;border-bottom:1px solid rgba(226,232,240,.45);display:flex;align-items:center;justify-content:space-between}
+.g-head h3{font-size:.95rem;font-weight:700;color:#0f172a;letter-spacing:-0.01em}
+.g-head .sub{font-size:.76rem;color:#94a3b8;margin-top:1px}
+
+/* ── AI Ring ── */
+.ring-box{display:flex;flex-direction:column;align-items:center;padding:28px 24px 20px}
+.ring-wrap{position:relative;width:110px;height:110px}
+.ring-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.ring-center .pct{font-size:1.5rem;font-weight:800;color:#0f172a;letter-spacing:-0.03em}
+.ring-center .lbl{font-size:.6rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;margin-top:1px}
+.ring-stats{display:flex;gap:24px;margin-top:20px}
+.ring-stat{text-align:center}
+.ring-stat .v{font-size:1.1rem;font-weight:700;color:#0f172a}
+.ring-stat .l{font-size:.65rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+
+/* ── Table ── */
+.clean-tbl{width:100%;border-collapse:collapse}
+.clean-tbl thead th{font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:#94a3b8;padding:11px 20px;background:rgba(248,250,252,.5);border-bottom:1px solid rgba(226,232,240,.45)}
+.clean-tbl thead th:first-child{padding-left:24px}
+.clean-tbl thead th:last-child{padding-right:24px}
+.clean-tbl tbody tr{border-bottom:1px solid rgba(241,245,249,.5);transition:background .12s}
+.clean-tbl tbody tr:hover{background:rgba(248,250,252,.6)}
+.clean-tbl tbody tr:last-child{border-bottom:none}
+.clean-tbl tbody td{padding:13px 20px;font-size:.84rem;color:#0f172a;vertical-align:middle}
+.clean-tbl tbody td:first-child{padding-left:24px}
+.clean-tbl tbody td:last-child{padding-right:24px}
+.tbl-avatar{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;background:linear-gradient(135deg,#eef2ff,#e0e7ff);color:#4f46e5}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:6px;font-size:.7rem;font-weight:600}
+.pill-green{background:rgba(22,163,74,.08);color:#16a34a}
+.pill-red{background:rgba(220,38,38,.08);color:#dc2626}
+.pill-gray{background:rgba(100,116,139,.08);color:#64748b}
+.pill-blue{background:rgba(37,99,235,.08);color:#2563eb}
+.pill-dot{width:5px;height:5px;border-radius:50%}
+.pill-green .pill-dot{background:#16a34a}
+.pill-red .pill-dot{background:#dc2626}
+.pill-gray .pill-dot{background:#94a3b8}
+.pill-blue .pill-dot{background:#2563eb}
+
+/* ── Responsive ── */
+@media(max-width:1100px){.stat-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.stat-grid{grid-template-columns:1fr}}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div style="display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:28px;padding-bottom:22px;border-bottom:1px solid rgba(226,232,240,0.45);box-sizing:border-box;" class="animate-up">
+    <div>
+        <div class="greet-label">Welcome back</div>
+        <div class="greet-name">{{ user.username }}</div>
+        <div class="greet-date"><i class="far fa-calendar-alt"></i><span id="liveDate"></span></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+        <div class="topbar-btn sq"><i class="fas fa-bell"></i><span class="ndot"></span></div>
+        <a href="{% url 'admin_export_applications_csv' %}" class="topbar-btn"><i class="fas fa-download"></i>Export</a>
+        <div class="top-avatar">{{ user.username|slice:":1"|upper }}</div>
+    </div>
+</div>
+
+<!-- Stat Cards -->
+<div class="stat-grid animate-up">
+    <div class="stat-card c-blue">
+        <div class="stat-icon i-blue"><i class="fas fa-file-alt"></i></div>
+        <div class="stat-label">Total Applications</div>
+        <div class="stat-num">{{ total_applications|default:0 }}</div>
+        <div class="stat-sub"><span class="up">↑ {{ approval_rate }}%</span> approval rate</div>
+    </div>
+    <div class="stat-card c-green">
+        <div class="stat-icon i-green"><i class="fas fa-check-circle"></i></div>
+        <div class="stat-label">Approved</div>
+        <div class="stat-num">{{ approved_loans|default:0 }}</div>
+        <div class="stat-sub">of {{ total_applications }} submitted</div>
+    </div>
+    <div class="stat-card c-red">
+        <div class="stat-icon i-red"><i class="fas fa-times-circle"></i></div>
+        <div class="stat-label">Rejected</div>
+        <div class="stat-num">{{ rejected_loans|default:0 }}</div>
+        <div class="stat-sub">{{ pending_loans|default:0 }} pending review</div>
+    </div>
+    <div class="stat-card c-indigo">
+        <div class="stat-icon i-indigo"><i class="fas fa-robot"></i></div>
+        <div class="stat-label">AI Match Rate</div>
+        <div class="stat-num">{{ match_rate }}%</div>
+        <div class="stat-sub">{{ matched_decisions }} matched · {{ overridden_decisions }} override</div>
+    </div>
+</div>
+
+<!-- Chart + AI Ring -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-8">
+        <div class="g-panel">
+            <div class="g-head">
+                <div>
+                    <h3>Application Trends</h3>
+                    <div class="sub">Monthly volume · last 6 months</div>
+                </div>
+                <span style="font-size:.72rem;font-weight:600;color:#2563eb;padding:5px 12px;background:rgba(37,99,235,.07);border-radius:8px">Monthly</span>
+            </div>
+            <div style="padding:16px 22px 20px">
+                <div style="height:220px;position:relative"><canvas id="trendChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="g-panel" style="height:100%">
+            <div class="g-head"><h3>AI Performance</h3></div>
+            <div class="ring-box">
+                <div class="ring-wrap">
+                    <canvas id="ringChart" width="110" height="110"></canvas>
+                    <div class="ring-center"><div class="pct">{{ match_rate }}%</div><div class="lbl">Match</div></div>
+                </div>
+                <div class="ring-stats">
+                    <div class="ring-stat"><div class="v" style="color:#16a34a">{{ matched_decisions }}</div><div class="l">Matched</div></div>
+                    <div class="ring-stat"><div class="v" style="color:#dc2626">{{ overridden_decisions }}</div><div class="l">Override</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Applications -->
+<div class="g-panel animate-up">
+    <div class="g-head">
+        <div>
+            <h3>Recent Applications</h3>
+            <div class="sub">Latest loan applications</div>
+        </div>
+    </div>
+    <table class="clean-tbl">
+        <thead><tr><th>Applicant</th><th>Loan Amount</th><th>AI Prediction</th><th>Status</th></tr></thead>
+        <tbody>
+        {% for app in system_activity %}
+        <tr>
+            <td>
+                <div style="display:flex;align-items:center;gap:11px">
+                    <div class="tbl-avatar">{{ app.applicant_name|slice:":1"|upper }}</div>
+                    <div>
+                        <div style="font-weight:600;font-size:.84rem">{{ app.applicant_name }}</div>
+                        <div style="font-size:.7rem;color:#94a3b8">{{ app.created_at|date:"d M Y" }}</div>
+                    </div>
+                </div>
+            </td>
+            <td style="font-weight:600">₹{{ app.loan_amount|floatformat:0 }}</td>
+            <td>
+                {% if app.ml_prediction == 'Approved' %}
+                    <span class="pill pill-green"><span class="pill-dot"></span>Approved</span>
+                {% elif app.ml_prediction == 'Rejected' %}
+                    <span class="pill pill-red"><span class="pill-dot"></span>Rejected</span>
+                {% else %}
+                    <span class="pill pill-gray"><span class="pill-dot"></span>Pending</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if app.status == 'approved' %}
+                    <span class="pill pill-green"><span class="pill-dot"></span>Approved</span>
+                {% elif app.status == 'rejected' %}
+                    <span class="pill pill-red"><span class="pill-dot"></span>Rejected</span>
+                {% elif app.status == 'review' %}
+                    <span class="pill pill-blue"><span class="pill-dot"></span>Review</span>
+                {% else %}
+                    <span class="pill pill-gray"><span class="pill-dot"></span>Pending</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" style="text-align:center;padding:36px;color:#94a3b8;font-size:.85rem">No applications yet.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Live date
+    const d = new Date();
+    document.getElementById('liveDate').textContent =
+        d.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}) +
+        ' · ' + d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = "#94a3b8";
+
+    // ── Area Chart ──
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    const grad = ctx.createLinearGradient(0,0,0,220);
+    grad.addColorStop(0,'rgba(37,99,235,0.12)');
+    grad.addColorStop(1,'rgba(37,99,235,0)');
+
+    new Chart(ctx,{
+        type:'line',
+        data:{
+            labels:{{ chart_months_json|safe }},
+            datasets:[{
+                data:{{ chart_counts_json|safe }},
+                borderColor:'#2563eb',borderWidth:2,
+                backgroundColor:grad,fill:true,tension:0.4,
+                pointRadius:0,pointHoverRadius:5,
+                pointHoverBackgroundColor:'#2563eb',
+                pointHoverBorderColor:'#fff',pointHoverBorderWidth:2
+            }]
+        },
+        options:{
+            responsive:true,maintainAspectRatio:false,
+            plugins:{
+                legend:{display:false},
+                tooltip:{
+                    backgroundColor:'#0f172a',padding:10,cornerRadius:8,
+                    titleFont:{size:12,weight:'600'},bodyFont:{size:11},
+                    displayColors:false,
+                    callbacks:{label:c=>`${c.parsed.y} Applications`}
+                }
+            },
+            scales:{
+                x:{grid:{display:false},border:{display:false},ticks:{font:{size:11}}},
+                y:{beginAtZero:true,grid:{color:'rgba(226,232,240,0.4)',borderDash:[3,3]},border:{display:false},ticks:{font:{size:11},stepSize:1}}
+            }
+        }
+    });
+
+    // ── Doughnut Ring ──
+    new Chart(document.getElementById('ringChart'),{
+        type:'doughnut',
+        data:{datasets:[{data:{{ chart_match_json|safe }},backgroundColor:['#2563eb','#e2e8f0'],borderWidth:0}]},
+        options:{cutout:'80%',plugins:{legend:{display:false},tooltip:{enabled:false}},animation:{duration:1000,easing:'easeOutQuart'}}
+    });
+});
+</script>
+{% endblock %}

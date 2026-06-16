@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Officer Console - LendSmart AI{% endblock %}
+{% block header_title %}Operational Workspace{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-0 text-slate-800">Processing Queue</h4>
+        <p class="text-muted small mb-0">Active verification and customer oversight.</p>
+    </div>
+    <a href="{% url 'admin_application_list' %}" class="btn btn-white border shadow-sm btn-sm px-3">
+        <i class="fas fa-list me-2"></i> Full Repository
+    </a>
+</div>
+
+<!-- Operational KPIs -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card kpi-card">
+            <div class="kpi-icon bg-primary-light text-primary"><i class="fas fa-layer-group"></i></div>
+            <div class="kpi-data">
+                <div class="kpi-label">Active Queue</div>
+                <div class="kpi-value">{{ total_applications|default:0 }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card kpi-card">
+            <div class="kpi-icon text-warning" style="background: #fffbeb;"><i class="fas fa-hourglass-half"></i></div>
+            <div class="kpi-data">
+                <div class="kpi-label">Pending Action</div>
+                <div class="kpi-value">{{ pending_loans|default:0 }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card kpi-card">
+            <div class="kpi-icon text-success" style="background: #ecfdf5;"><i class="fas fa-user-check"></i></div>
+            <div class="kpi-data">
+                <div class="kpi-label">My Approvals</div>
+                <div class="kpi-value">{{ approved_loans|default:0 }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card kpi-card">
+            <div class="kpi-icon text-danger" style="background: #fef2f2;"><i class="fas fa-user-xmark"></i></div>
+            <div class="kpi-data">
+                <div class="kpi-label">My Rejections</div>
+                <div class="kpi-value">{{ rejected_loans|default:0 }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Application Queue -->
+<div class="card shadow-sm border-0">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Application Verification Queue</span>
+        <span class="badge bg-light text-muted border fw-normal">Priority View</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Reference</th>
+                        <th>Applicant</th>
+                        <th>Loan Amount</th>
+                        <th>AI Prediction</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in recent_applications %}
+                    <tr>
+                        <td class="ps-4 text-muted small">#LP-{{ app.id }}</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="avatar-initial">{{ app.applicant_name|slice:":1"|upper }}</div>
+                                <div class="fw-bold">{{ app.applicant_name }}</div>
+                            </div>
+                        </td>
+                        <td class="fw-medium">Rs. {{ app.loan_amount|floatformat:0 }}</td>
+                        <td>
+                            <span class="badge {% if app.effective_ml_prediction|lower == 'approved' %}bg-success-light text-success{% elif app.effective_ml_prediction|lower == 'rejected' %}bg-danger-light text-danger{% else %}bg-light text-muted border{% endif %}" style="{% if app.effective_ml_prediction|lower == 'approved' %}background: #ecfdf5;{% elif app.effective_ml_prediction|lower == 'rejected' %}background: #fef2f2;{% endif %}">
+                                {{ app.effective_ml_prediction|default:'Pending'|capfirst }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge {% if app.status == 'approved' %}bg-success{% elif app.status == 'rejected' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                                {{ app.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <a href="{% url 'admin_application_detail' app.id %}" class="btn btn-sm btn-primary px-3 rounded-pill">Manage</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="text-center py-5 text-muted">No applications found in your operational queue.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

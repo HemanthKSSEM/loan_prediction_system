@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Prediction Result - LoanPredict AI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold"><i class="fas fa-robot text-primary me-2"></i>AI Prediction Analysis</h2>
+            <p class="text-muted">Application #{{ application.id }} for {{ application.applicant_name }}</p>
+        </div>
+
+        <div class="card border-0 shadow-lg mb-4" style="border-radius: 20px; overflow: hidden;">
+            {% if application.ml_prediction == 'Approved' %}
+            <div class="card-header bg-success text-white text-center py-4 border-0">
+                <i class="fas fa-check-circle fa-4x mb-3"></i>
+                <h2 class="fw-bold mb-0">APPROVED</h2>
+            </div>
+            {% else %}
+            <div class="card-header bg-danger text-white text-center py-4 border-0">
+                <i class="fas fa-times-circle fa-4x mb-3"></i>
+                <h2 class="fw-bold mb-0">REJECTED</h2>
+            </div>
+            {% endif %}
+            
+            <div class="card-body p-4 p-md-5">
+                <div class="row text-center mb-5">
+                    <div class="col-md-6 border-end">
+                        <p class="text-muted text-uppercase small fw-bold mb-1">AI Confidence Score</p>
+                        <h1 class="display-4 fw-bold {% if application.ml_prediction == 'Approved' %}text-success{% else %}text-danger{% endif %}">
+                            {{ application.prediction_confidence|floatformat:1 }}%
+                        </h1>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="text-muted text-uppercase small fw-bold mb-1">Risk Level Assessment</p>
+                        <h1 class="display-4 fw-bold text-dark">
+                            {% if application.prediction_confidence >= 80 %}
+                                LOW
+                            {% elif application.prediction_confidence >= 60 %}
+                                MODERATE
+                            {% else %}
+                                HIGH
+                            {% endif %}
+                        </h1>
+                    </div>
+                </div>
+
+                <div class="bg-light p-4 rounded-4 mb-4">
+                    <h5 class="fw-bold mb-3"><i class="fas fa-list-check text-primary me-2"></i>Key AI Factors</h5>
+                    <ul class="list-unstyled mb-0">
+                        {% if application.cibil_score >= 700 %}
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Excellent CIBIL Score ({{ application.cibil_score }}) aligns with banking guidelines.</li>
+                        {% elif application.cibil_score >= 500 %}
+                        <li class="mb-2"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Average CIBIL Score ({{ application.cibil_score }}).</li>
+                        {% else %}
+                        <li class="mb-2"><i class="fas fa-times-circle text-danger me-2"></i>Poor CIBIL Score ({{ application.cibil_score }}) is a major risk factor.</li>
+                        {% endif %}
+                        
+                        {% if application.income_annum > 1000000 %}
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>High annual income indicates strong repayment capacity.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="{% url 'user_dashboard' %}" class="btn btn-primary rounded-pill px-5 fw-bold">Return to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
